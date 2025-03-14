@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My GitHub Pages Site</title>
+    <!-- Firebase configuration -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
 </head>
 <body>
     <h1>Welcome to My GitHub Pages Site</h1>
@@ -31,43 +35,68 @@
     <button onclick="deleteFile()">Delete File</button>
 
     <script>
-        // JavaScript functions to handle file operations
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        const app = firebase.initializeApp(firebaseConfig);
+        const storage = firebase.storage();
+        const db = firebase.firestore();
 
+        // Function to save text
         function saveText() {
             const text = document.getElementById('textArea').value;
             document.getElementById('savedText').innerText = text;
+            db.collection('texts').add({ content: text });
         }
 
+        // Function to upload photo
         function uploadPhoto() {
             const input = document.getElementById('photoInput');
             if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    img.width = 200;
-                    document.getElementById('photoGallery').appendChild(img);
-                };
-                reader.readAsDataURL(input.files[0]);
+                const file = input.files[0];
+                const storageRef = storage.ref('photos/' + file.name);
+                storageRef.put(file).then(() => {
+                    storageRef.getDownloadURL().then((url) => {
+                        const img = document.createElement('img');
+                        img.src = url;
+                        img.width = 200;
+                        document.getElementById('photoGallery').appendChild(img);
+                    });
+                });
             }
         }
 
+        // Function to upload text file
         function uploadTextFile() {
             const input = document.getElementById('textFileInput');
             if (input.files && input.files[0]) {
+                const file = input.files[0];
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const text = e.target.result;
                     document.getElementById('textFileContent').innerText = text;
+                    db.collection('files').add({ name: file.name, content: text });
                 };
-                reader.readAsText(input.files[0]);
+                reader.readAsText(file);
             }
         }
 
+        // Function to delete file
         function deleteFile() {
             const fileName = document.getElementById('fileNameToDelete').value;
             if (fileName) {
-                alert('File ' + fileName + ' deleted.');
+                const storageRef = storage.ref('photos/' + fileName);
+                storageRef.delete().then(() => {
+                    alert('File ' + fileName + ' deleted.');
+                }).catch((error) => {
+                    alert('Error deleting file: ' + error);
+                });
             }
         }
     </script>
