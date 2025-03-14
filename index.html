@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My GitHub Pages Site</title>
+</head>
+<body>
+    <h1>Welcome to My GitHub Pages Site</h1>
+
+    <!-- Section to write text -->
+    <textarea id="textArea" rows="10" cols="50" placeholder="Write your text here..."></textarea>
+    <button onclick="saveText()">Save Text</button>
+    <p id="savedText"></p>
+
+    <!-- Section to upload photos -->
+    <h2>Upload a Photo</h2>
+    <input type="file" id="photoInput" accept="image/*">
+    <button onclick="uploadPhoto()">Upload Photo</button>
+    <div id="photoGallery"></div>
+
+    <!-- Section to upload text files -->
+    <h2>Upload a Text File</h2>
+    <input type="file" id="textFileInput" accept=".txt">
+    <button onclick="uploadTextFile()">Upload Text File</button>
+    <div id="textFileContent"></div>
+
+    <!-- Section to delete files -->
+    <h2>Delete a File</h2>
+    <input type="text" id="fileNameToDelete" placeholder="Enter file name to delete">
+    <button onclick="deleteFile()">Delete File</button>
+
+    <script>
+        // JavaScript functions to handle file operations
+
+        function saveText() {
+            const text = document.getElementById('textArea').value;
+            document.getElementById('savedText').innerText = text;
+        }
+
+        function uploadPhoto() {
+            const input = document.getElementById('photoInput');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.width = 200;
+                    document.getElementById('photoGallery').appendChild(img);
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function uploadTextFile() {
+            const input = document.getElementById('textFileInput');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const text = e.target.result;
+                    document.getElementById('textFileContent').innerText = text;
+                };
+                reader.readAsText(input.files[0]);
+            }
+        }
+
+        function deleteFile() {
+            const fileName = document.getElementById('fileNameToDelete').value;
+            if (fileName) {
+                alert('File ' + fileName + ' deleted.');
+            }
+        }
+    </script>
+</body>
+</html>
